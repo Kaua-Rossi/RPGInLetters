@@ -9,7 +9,7 @@ namespace RPGInLetters.Data
         {
         }
         public DbSet<User> Users { get; set; }
-        public DbSet<Character> Players { get; set; }
+        public DbSet<Character> Characters { get; set; }
         public DbSet<Item> Items { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
