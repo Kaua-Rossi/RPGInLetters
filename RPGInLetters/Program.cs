@@ -46,5 +46,18 @@ namespace RPGInLetters
                     break;
             }
         }
+
+        private static ApplicationDbContext CreateDbContext()
+        {
+            var configuration = new ConfigurationBuilder()
+                .AddUserSecrets<Program>()
+                .Build();
+
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+            var connectionString = configuration.GetConnectionString("SupabaseConnection");
+            optionsBuilder.UseNpgsql(connectionString);
+
+            return new ApplicationDbContext(optionsBuilder.Options);
+        }
     }
 }
