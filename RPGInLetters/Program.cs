@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using RPGInLetters.Data;
+using RPGInLetters.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace RPGInLetters
@@ -13,6 +14,7 @@ namespace RPGInLetters
 
     internal class Program
     {
+        internal static User? loggedUser = default;
 
         static void Main(string[] args)
         {
@@ -34,7 +36,49 @@ namespace RPGInLetters
                     break;
 
                 case (byte)MenuChoices.LOGIN:
-                    Console.WriteLine("To be implemented");
+                    Console.WriteLine("Username: ");
+                    string username = Console.ReadLine() ?? string.Empty;
+                    Console.WriteLine("Password: ");
+                    string password = Console.ReadLine() ?? string.Empty;
+
+                    using (var context = CreateDbContext())
+                    {
+                        context.Database.EnsureCreated();
+
+                        loggedUser = context.Users.Include(u => u.UserCharacter).FirstOrDefault(u => u.Username == username && u.Password == password);
+
+                        if (loggedUser != default)
+                        {
+                            Console.WriteLine($"Welcome back, {loggedUser.Username}!");
+
+                            if (loggedUser.UserCharacter == default)
+                            {
+                                Console.WriteLine("You don't have a character yet. Please create one.");
+                                return;
+                            }
+                            else
+                            {
+                                Console.WriteLine("This is your character: ");
+
+                                var userCharacter = loggedUser.UserCharacter!;
+
+                                var properties = userCharacter.GetType().GetProperties();
+
+                                foreach (var property in properties)
+                                {
+                                    if (property.Name == "User" || property.Name == "Id" || property.Name == "UserId")
+                                        continue;
+                                    var value = property.GetValue(userCharacter);
+                                    Console.WriteLine($"{property.Name}: {value}");
+
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid username or password.");
+                        }
+                    }
                     break;
 
                 default:
